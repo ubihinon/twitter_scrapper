@@ -37,6 +37,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'apps.users',
+    'apps.hashtags',
+
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -67,6 +72,12 @@ TEMPLATES = [
         },
     },
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.AllowAny',
+    ),
+}
 
 WSGI_APPLICATION = 'twitter_scrapper.wsgi.application'
 
