@@ -8,12 +8,18 @@ from bs4 import BeautifulSoup
 
 class TweetScrapper:
     def get_tweets_by_tag(self, tag, limit):
-
         encoded_url = parse.urlencode({'q': tag, 'src': 'typd'})
         url = f'https://twitter.com/search?{encoded_url}'
 
         html = self.get_body_response(url)
-        return TweetParser().get_tweets(tag, limit, html)
+        return TweetParser().get_tweets(limit, html)
+
+    def get_user_tweets(self, user, limit):
+        # encoded_url = parse.urlencode({'q': user, 'src': 'typd'})
+        url = f'https://twitter.com/{user}'
+
+        html = self.get_body_response(url)
+        return TweetParser().get_tweets(limit, html)
 
     def get_body_response(self, url):
         if 'linux' in sys.platform:
@@ -26,19 +32,19 @@ class TweetScrapper:
 
 
 class TweetParser:
-    def get_tweets(self, tag, limit, html):
+    def get_tweets(self, limit, html):
         parser = BeautifulSoup(html)
         tweets = []
 
         for tweet in parser.body.find_all('div', attrs={'class': 'tweet'}, limit=limit):
-            tweets.append(self.get_tweet(tweet, tag))
+            tweets.append(self.get_tweet(tweet))
 
         return tweets
 
-    def get_tweet(self, bs_obj, tag):
+    def get_tweet(self, bs_obj):
         return {
             'account': self.get_account(bs_obj),
-            'hashtags': [tag],
+            'hashtags': self.get_hashtags(bs_obj),
             'date': self.get_date(bs_obj),
             'likes': self.get_likes(bs_obj),
             'replies': self.get_replies(bs_obj),
@@ -75,6 +81,19 @@ class TweetParser:
 
     def get_retweets(self, bs_obj):
         return self._get_count_value(bs_obj, 'ProfileTweet-action--retweet')
+
+    def get_hashtags(self, bs_obj):
+        hashtags = []
+
+        containers = bs_obj.find_all('a', attrs={'data-query-source': 'hashtag_click'})
+
+        for container in containers:
+            if not container.find('b').findChild():
+                hashtags.append(container.text)
+            else:
+                hashtags.append(container.find('b').findChild().text)
+
+        return hashtags
 
     def get_text(self, bs_obj):
         return bs_obj.find('p', attrs={'class': 'tweet-text'}).text
