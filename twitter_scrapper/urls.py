@@ -17,7 +17,8 @@ from django.contrib import admin
 from django.urls import path, include
 
 API_ENDPOINTS = [
-    path('hashtags/', include('apps.hashtags.urls'))
+    path('hashtags/', include('apps.hashtags.urls')),
+    path('users/', include('apps.users.urls'))
 ]
 
 urlpatterns = [

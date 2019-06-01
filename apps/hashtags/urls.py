@@ -1,7 +1,7 @@
 from django.urls import path
 
-from .views import TweetListView
+from .views import TweetListByHashtagView
 
 urlpatterns = [
-    path('<slug:tag>/', TweetListView.as_view(), name='hashtags-tweets')
+    path('<tag>', TweetListByHashtagView.as_view(), name='hashtags-tweets')
 ]

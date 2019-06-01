@@ -6,7 +6,8 @@ from apps.users.serializers import AccountSerializer
 
 class TweetSerializer(serializers.Serializer):
     account = AccountSerializer()
-    hashtags = HashTagSerializer(many=True)
+    # hashtags = HashTagSerializer(many=True)
+    hashtags = serializers.ListField()
     date = serializers.DateTimeField()
     likes = serializers.IntegerField()
     replies = serializers.IntegerField()
