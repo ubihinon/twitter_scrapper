@@ -11,10 +11,10 @@ class UserTweetListView(views.APIView):
         limit = int(request.query_params.get('limit', settings.PAGE_LIMIT))
         user = kwargs.get('user', '')
 
-        tweet_scrapper = TweetScrapper()
+        tweet_scrapper = TweetScrapper(limit)
         tweets = []
 
-        for tweet in tweet_scrapper.get_user_tweets(user, limit):
+        for tweet in tweet_scrapper.get_user_tweets(user):
             print(tweet)
             tweets.append(tweet)
 

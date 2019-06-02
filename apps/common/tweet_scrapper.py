@@ -1,34 +1,71 @@
+import math
+import re
 import sys
+import time
 from datetime import datetime
+from functools import partial
+from time import sleep
 from urllib import parse
 
 import dryscrape
 from bs4 import BeautifulSoup
 
+PAGE_SIZE = 20
+
 
 class TweetScrapper:
-    def get_tweets_by_tag(self, tag, limit):
+
+    def __init__(self, limit) -> None:
+        super().__init__()
+        self.limit = limit
+
+    def get_tweets_by_tag(self, tag):
         encoded_url = parse.urlencode({'q': tag, 'src': 'typd'})
         url = f'https://twitter.com/search?{encoded_url}'
 
         html = self.get_body_response(url)
-        return TweetParser().get_tweets(limit, html)
+        tweets = TweetParser().get_tweets(self.limit, html)
 
-    def get_user_tweets(self, user, limit):
-        # encoded_url = parse.urlencode({'q': user, 'src': 'typd'})
+        return tweets
+
+    def get_user_tweets(self, user):
         url = f'https://twitter.com/{user}'
 
         html = self.get_body_response(url)
-        return TweetParser().get_tweets(limit, html)
+        return TweetParser().get_tweets(self.limit, html)
 
     def get_body_response(self, url):
         if 'linux' in sys.platform:
             dryscrape.start_xvfb()
 
-        session = dryscrape.Session()
-        session.visit(url)
+        self.session = dryscrape.Session()
+        self.session.set_attribute('auto_load_images', False)
+        self.session.set_header('User-agent', 'Google Chrome')
 
-        return session.body()
+        self.session.visit(url)
+
+        start_time = time.time()
+        for i in range(math.ceil(self.limit / PAGE_SIZE)):
+            self.load_more_results()
+        print(f'Duration time: {time.time() - start_time}')
+        return self.session.body()
+
+    def load_more_results(self):
+        html = self.session.body()
+
+        self.session.exec_script('window.scrollTo(0, document.body.scrollHeight);')
+
+        self.session.wait_for(partial(self.is_true, TweetParser().get_tweets_count(html)), timeout=30)
+
+    def is_true(self, initial_count):
+        # sleep(2)
+        # return True
+        html = self.session.body()
+        count = TweetParser().get_tweets_count(html)
+        while count < initial_count + PAGE_SIZE - 5:
+            html = self.session.body()
+            count = TweetParser().get_tweets_count(html)
+        return True
 
 
 class TweetParser:
@@ -36,10 +73,19 @@ class TweetParser:
         parser = BeautifulSoup(html)
         tweets = []
 
-        for tweet in parser.body.find_all('div', attrs={'class': 'tweet'}, limit=limit):
+        for tweet in self.get_all_tweets(parser, limit):
             tweets.append(self.get_tweet(tweet))
 
         return tweets
+
+    def get_tweets_count(self, html):
+        parser = BeautifulSoup(html)
+        size = len(self.get_all_tweets(parser))
+        # size = len(re.findall('<div.+class=\"tweet', html))
+        return size
+
+    def get_all_tweets(self, bs_obj, limit=None):
+        return bs_obj.body.find_all('div', attrs={'class': 'tweet'}, limit=limit)
 
     def get_tweet(self, bs_obj):
         return {
@@ -69,7 +115,7 @@ class TweetParser:
         date = int(bs_obj.find('a', attrs={'class': 'tweet-timestamp'}).find('span').get('data-time-ms'))
         # return datetime.fromtimestamp(date/1000.0, tz=get_current_timezone())
         # return datetime.fromtimestamp(date/1000.0).strftime('%-I:%M %p - %-d %b %Y')
-        date = datetime.fromtimestamp(date/1000.0).strftime('%-I:%M %p - %-d %b %Y')
+        date = datetime.fromtimestamp(date / 1000.0).strftime('%-I:%M %p - %-d %b %Y')
         # return timezone.localtime(date)
         return date
 

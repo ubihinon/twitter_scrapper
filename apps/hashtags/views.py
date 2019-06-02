@@ -11,11 +11,10 @@ class TweetListByHashtagView(views.APIView):
         limit = int(request.query_params.get('limit', settings.PAGE_LIMIT))
         tag = kwargs.get('tag', '')
 
-        tweet_scrapper = TweetScrapper()
+        tweet_scrapper = TweetScrapper(limit)
         tweets = []
 
-        for tweet in tweet_scrapper.get_tweets_by_tag(tag, limit):
-            print(tweet)
+        for tweet in tweet_scrapper.get_tweets_by_tag(tag):
             tweets.append(tweet)
 
         return Response(TweetSerializer(tweets, many=True).data)
