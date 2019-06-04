@@ -1,4 +1,11 @@
+beautifulsoup4==4.7.1
 Django==2.2.1
 djangorestframework==3.9.4
+dryscrape==1.0
+lxml==4.3.3
 pytz==2019.1
+soupsieve==1.9.1
 sqlparse==0.3.0
+uWSGI==2.0.18
+webkit-server==1.0
+xvfbwrapper==0.2.9

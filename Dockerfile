@@ -15,11 +15,12 @@ RUN sudo apt-get install -y python3.6 \
                             build-essential \
                             python-lxml \
                             xvfb \
-                            software-properties-common
+                            software-properties-common \
+#                            nginx
 
-RUN apt-get update
+RUN apt-get update && export DJANGO_ENV=prod
+
 RUN sudo add-apt-repository -y ppa:nginx/stable
-RUN sudo apt-get install -y nginx
 
 RUN pip3 install -r requirements.txt --no-cache-dir
 

@@ -5,6 +5,7 @@ from datetime import datetime
 from urllib import parse
 
 import dryscrape
+import pytz
 from bs4 import BeautifulSoup
 
 PAGE_SIZE = 20
@@ -68,7 +69,7 @@ class TweetScrapper:
 
 class TweetParser:
     def retrieve_tweets(self, limit, html):
-        parser = BeautifulSoup(html)
+        parser = BeautifulSoup(html, features='lxml')
         tweets = []
 
         for tweet in parser.body.find_all('div', attrs={'class': 'tweet'}, limit=limit):
@@ -101,10 +102,12 @@ class TweetParser:
         return account
 
     def retrieve_date(self, bs_obj):
-        date = int(bs_obj.find('a', attrs={'class': 'tweet-timestamp'}).find('span').get('data-time-ms'))
-        date = datetime.fromtimestamp(date / 1000.0).strftime('%-I:%M %p - %-d %b %Y')
+        timestamp = int(bs_obj.find('a', attrs={'class': 'tweet-timestamp'}).find('span').get('data-time-ms'))
+        # date = datetime.utcfromtimestamp(timestamp / 1000.0).strftime('%-I:%M %p - %-d %b %Y')
+        date = datetime.utcfromtimestamp(timestamp / 1000.0)
+        aware_utc_dt = date.replace(tzinfo=pytz.utc)
 
-        return date
+        return aware_utc_dt.strftime('%-I:%M %p - %-d %b %Y')
 
     def retrieve_likes_count(self, bs_obj):
         return self._retrieve_count_value(bs_obj, 'ProfileTweet-action--favorite u-hiddenVisually')
