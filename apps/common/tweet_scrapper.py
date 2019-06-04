@@ -1,5 +1,4 @@
 import math
-import re
 import sys
 from datetime import datetime
 from urllib import parse
@@ -44,27 +43,29 @@ class TweetScrapper:
 
         self.session.visit(url)
 
-        for i in range(math.ceil(self.limit / PAGE_SIZE)):
+        for i in range(1, math.ceil(self.limit / PAGE_SIZE)):
             self._load_more_results()
 
         return self.session.body()
 
     def _load_more_results(self):
         self.session.exec_script('window.scrollTo(0, document.body.scrollHeight);')
-        self.session.wait_for(self._is_tweets_loaded, timeout=30)
+        self.session.wait_for(self._is_tweets_loaded, timeout=20)
 
     def _is_tweets_loaded(self):
         initial_count = self._get_tweets_count()
-        count = initial_count
+        count = self._get_tweets_count()
 
+        # TODO: handle if there is no one new tweet or not found
         while count < initial_count + 1:
             count = self._get_tweets_count()
+            if count >= self.limit:
+                break
 
         return True
 
     def _get_tweets_count(self):
-        html = self.session.body()
-        return self.tweet_parser.get_tweets_count(html)
+        return len(self.session.xpath('//*[@class="stream-item-header"]'))
 
 
 class TweetParser:
@@ -124,12 +125,6 @@ class TweetParser:
 
     def retrieve_text(self, bs_obj):
         return bs_obj.find('p', attrs={'class': 'tweet-text'}).text
-
-    def get_tweets_count(self, html):
-        size = len(
-            re.findall('<div.+class=\"tweet js-stream-tweet js-actionable-tweet js-profile-popup-actionable', html)
-        )
-        return size
 
     def _retrieve_count_value(self, bs_obj, container_class_name):
         container = bs_obj.find('span', attrs={'class': container_class_name})

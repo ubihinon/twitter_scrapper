@@ -11,10 +11,6 @@ class TweetParserTestCase(BaseTestMixin, TestCase):
         super().setUp()
         self.parser = TweetParser()
 
-    def test_get_tweets_count(self):
-        html = self._get_file_data()
-        self.assertEqual(self.parser.get_tweets_count(html), 1)
-
     def test_retrieve_tweets(self):
         html = self._get_file_data()
 
@@ -73,14 +69,18 @@ class TweetParserTestCase(BaseTestMixin, TestCase):
     def _get_item_header(self):
         file = self.open_asset('item_header.html')
         html = file.read().decode('utf-8')
-        return BeautifulSoup(html)
+        return self._create_beautiful_soup(html)
 
     def _get_item_footer(self):
         file = self.open_asset('item_footer.html')
         html = file.read().decode('utf-8')
-        return BeautifulSoup(html)
+        return self._create_beautiful_soup(html)
 
     def _get_item_content(self):
         file = self.open_asset('item_content.html')
         html = file.read().decode('utf-8')
-        return BeautifulSoup(html)
+        return self._create_beautiful_soup(html)
+
+    @staticmethod
+    def _create_beautiful_soup(html):
+        return BeautifulSoup(html, features='lxml')
