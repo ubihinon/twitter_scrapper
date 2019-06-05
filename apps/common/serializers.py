@@ -1,18 +1,18 @@
 from rest_framework import serializers
 
-from apps.hashtags.serializers import HashTagSerializer
+from apps.hashtags.fields import HashTagField
 from apps.users.serializers import AccountSerializer
 
 
+# TODO CHECK
 class TweetSerializer(serializers.Serializer):
     account = AccountSerializer()
-    # hashtags = HashTagSerializer(many=True)
-    hashtags = serializers.ListField()
-    date = serializers.DateTimeField()
+    hashtags = HashTagField()
+    date = serializers.DateTimeField(format='%-I:%M %p - %-d %b %Y', input_formats=['%I:%M %p - %d %b %Y'])
     likes = serializers.IntegerField()
     replies = serializers.IntegerField()
     retweets = serializers.IntegerField()
-    text = serializers.TimeField()
+    text = serializers.CharField()
 
     def update(self, instance, validated_data):
         pass

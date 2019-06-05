@@ -17,4 +17,8 @@ class UserTweetListView(views.APIView):
         for tweet in tweet_scrapper.get_user_tweets(username):
             tweets.append(tweet)
 
-        return Response(TweetSerializer(tweets, many=True).data)
+        serializer = TweetSerializer(data=tweets, many=True)
+        serializer.is_valid()
+
+        return Response(serializer.data)
+
