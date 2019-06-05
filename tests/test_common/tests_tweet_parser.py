@@ -5,7 +5,7 @@ from apps.common.tweet_scrapper import TweetParser
 from tests.core.base import BaseTestMixin
 
 
-class TweetParserTestCase(BaseTestMixin, TestCase):
+class TweetParserTests(BaseTestMixin, TestCase):
 
     def setUp(self):
         super().setUp()

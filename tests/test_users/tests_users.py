@@ -2,7 +2,7 @@ from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
 
-class UserTweetsAPITestCase(APITestCase):
+class UserTweetsAPITests(APITestCase):
     url_name = 'user-tweets'
 
     def setUp(self):
@@ -25,3 +25,8 @@ class UserTweetsAPITestCase(APITestCase):
         self.username = 'testtesttesttesttesttest1234567890'
         response = self.client.get(reverse(self.url_name, [self.username]), {'limit': 50})
         self.assertEqual(len(response.data), 0)
+
+    def test_username_without_tweets(self):
+        self.username = 'grag12'
+        response = self.client.get(reverse(self.url_name, [self.username]), {'limit': 50})
+        self.assertEqual(len(response.data), 12)
