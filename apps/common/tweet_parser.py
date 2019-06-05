@@ -39,12 +39,8 @@ class TweetParser:
         return account
 
     def retrieve_date(self, bs_obj):
-        timestamp = int(bs_obj.find('a', attrs={'class': 'tweet-timestamp'}).find('span').get('data-time-ms'))
-        # date = datetime.utcfromtimestamp(timestamp / 1000.0).strftime('%-I:%M %p - %-d %b %Y')
-        date = datetime.utcfromtimestamp(timestamp / 1000.0)
-        aware_utc_dt = date.replace(tzinfo=pytz.utc)
-
-        return aware_utc_dt.strftime('%-I:%M %p - %-d %b %Y')
+        time = bs_obj.find('a', attrs={'class': 'tweet-timestamp'}).get('title')
+        return datetime.strptime(time, '%I:%M %p - %d %b %Y').strftime('%-I:%M %p - %-d %b %Y')
 
     def retrieve_likes_count(self, bs_obj):
         return self._retrieve_count_value(bs_obj, 'ProfileTweet-action--favorite u-hiddenVisually')
