@@ -1,10 +1,11 @@
 from datetime import datetime
+
 from bs4 import BeautifulSoup
 
 
 class TweetParser:
     def retrieve_tweets(self, limit, html):
-        parser = BeautifulSoup(html, features='lxml')
+        parser = BeautifulSoup(html, 'lxml')
         tweets = []
 
         for tweet in parser.body.find_all('div', attrs={'class': 'tweet'}, limit=limit):

@@ -13,8 +13,11 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
 from django.urls import path, include
+from rest_framework_swagger.views import get_swagger_view
+
+
+swagger_view = get_swagger_view(title='TwitterScrapper API')
 
 API_ENDPOINTS = [
     path('hashtags/', include('apps.hashtags.urls')),
@@ -22,6 +25,6 @@ API_ENDPOINTS = [
 ]
 
 urlpatterns = [
+    path('docs', swagger_view),
     path('', include(API_ENDPOINTS)),
-    path('admin/', admin.site.urls),
 ]

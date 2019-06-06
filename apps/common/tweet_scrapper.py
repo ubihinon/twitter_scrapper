@@ -10,7 +10,6 @@ PAGE_SIZE = 20
 
 
 class TweetScrapper:
-
     def __init__(self, limit) -> None:
         super().__init__()
         self.limit = limit

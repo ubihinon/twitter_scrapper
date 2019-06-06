@@ -83,4 +83,4 @@ class TweetParserTests(BaseTestMixin, TestCase):
 
     @staticmethod
     def _create_beautiful_soup(html):
-        return BeautifulSoup(html, features='lxml')
+        return BeautifulSoup(html, 'lxml')
