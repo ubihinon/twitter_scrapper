@@ -1,5 +1,6 @@
 import math
 import sys
+from time import time
 from urllib import parse
 
 import dryscrape
@@ -7,6 +8,7 @@ import dryscrape
 from apps.common.tweet_parser import TweetParser
 
 PAGE_SIZE = 20
+LOADING_SECONDS = 5
 
 
 class TweetScrapper:
@@ -41,7 +43,7 @@ class TweetScrapper:
 
         self.session.visit(url)
 
-        for i in range(1, math.ceil(self.limit / PAGE_SIZE)):
+        for i in range(math.ceil(self.limit / PAGE_SIZE)):
             self._load_more_results()
 
         return self.session.body()
@@ -51,6 +53,7 @@ class TweetScrapper:
         self.session.wait_for(self._is_tweets_loaded, timeout=20)
 
     def _is_tweets_loaded(self):
+        start_time = time()
         initial_count = self._get_tweets_count()
         if not initial_count:
             return True
@@ -59,13 +62,10 @@ class TweetScrapper:
 
         while count < initial_count + 1:
             count = self._get_tweets_count()
-            if count >= self.limit or self._is_last_tweet():
+            if count >= self.limit or (time() - start_time) >= LOADING_SECONDS:
                 break
 
         return True
 
     def _get_tweets_count(self):
         return len(self.session.xpath('//*[@class="stream-item-header"]'))
-
-    def _is_last_tweet(self):
-        return self._get_tweets_count() % PAGE_SIZE > 0
