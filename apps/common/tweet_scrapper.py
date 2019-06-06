@@ -17,6 +17,7 @@ class TweetScrapper:
         self.limit = limit
         self.tweet_parser = TweetParser()
         self.session = None
+        self.count_items = None
 
     def get_tweets_by_tag(self, hashtag):
         encoded_url = parse.urlencode({'q': f'#{hashtag}', 'src': 'typd'})
@@ -30,10 +31,10 @@ class TweetScrapper:
     def get_user_tweets(self, user):
         url = f'https://twitter.com/{user}'
 
-        html = self.get_body_response(url)
+        html = self.get_body_response(url, True)
         return self.tweet_parser.retrieve_tweets(self.limit, html)
 
-    def get_body_response(self, url):
+    def get_body_response(self, url, is_count_items_exists=False):
         if 'linux' in sys.platform:
             dryscrape.start_xvfb()
 
@@ -43,7 +44,12 @@ class TweetScrapper:
 
         self.session.visit(url)
 
+        if is_count_items_exists:
+            self.count_items = int(self.session.at_xpath('//span[@class="ProfileNav-value"]').get_attr('data-count'))
+
         for i in range(math.ceil(self.limit / PAGE_SIZE)):
+            if self._is_last_tweet():
+                break
             self._load_more_results()
 
         return self.session.body()
@@ -62,10 +68,13 @@ class TweetScrapper:
 
         while count < initial_count + 1:
             count = self._get_tweets_count()
-            if count >= self.limit or (time() - start_time) >= LOADING_SECONDS:
+            if count >= self.limit or self._is_last_tweet() or (time() - start_time) >= LOADING_SECONDS:
                 break
 
         return True
 
     def _get_tweets_count(self):
         return len(self.session.xpath('//*[@class="stream-item-header"]'))
+
+    def _is_last_tweet(self):
+        return self.count_items and self._get_tweets_count() >= self.count_items
