@@ -45,7 +45,8 @@ class TweetScrapper:
         self.session.visit(url)
 
         if is_count_items_exists:
-            self.count_items = int(self.session.at_xpath('//span[@class="ProfileNav-value"]').get_attr('data-count'))
+            value = self.session.at_xpath('//span[@class="ProfileNav-value"]')
+            self.count_items = int(value.get_attr('data-count')) if value else None
 
         for i in range(math.ceil(self.limit / PAGE_SIZE)):
             if self._is_last_tweet():

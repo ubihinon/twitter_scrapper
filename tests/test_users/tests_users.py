@@ -17,7 +17,6 @@ class UserTweetsAPITests(APITestCase):
         self.assertEqual(len(response.data), 5)
 
     def test_retrieve_list_with_limit_more_default(self):
-        # TODO create parametrized tests
         response = self.client.get(reverse(self.url_name, [self.username]), {'limit': 50})
         self.assertEqual(len(response.data), 50)
 
@@ -25,8 +24,3 @@ class UserTweetsAPITests(APITestCase):
         self.username = 'testtesttesttesttesttest1234567890'
         response = self.client.get(reverse(self.url_name, [self.username]), {'limit': 50})
         self.assertEqual(len(response.data), 0)
-
-    def test_username_without_tweets(self):
-        self.username = 'grag12'
-        response = self.client.get(reverse(self.url_name, [self.username]), {'limit': 50})
-        self.assertEqual(len(response.data), 12)
