@@ -9,5 +9,9 @@ Example: http://localhost:80/users/Twitter, http://localhost:80/users/Twitter?li
 Data by hashtag can be got: http://localhost/hashtags/{hashtag name without '#'}    
 Example: http://localhost:80/users/python, http://localhost:80/users/python?limit=100
 
-If you want to launch tests you need to create `dev.py` file in `/twitter_scrapper/settings` 
-and copy content from `dev.py.template`. After that you can launch tests.
+If you want to launch tests you need to do next:    
+1. create Virtual env  
+2. execute command `pip3 install -r requirements.txt --no-cache-dir`  
+3. Create `dev.py` file in `/twitter_scrapper/settings` and copy content from `dev.py.template`.  
+
+After that you can launch tests.
