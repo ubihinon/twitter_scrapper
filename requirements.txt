@@ -19,7 +19,7 @@ simplejson==3.16.0
 soupsieve==1.9.1
 sqlparse==0.3.0
 uritemplate==3.0.0
-urllib3==1.25.3
+urllib3==1.26.5
 uWSGI==2.0.18
 webkit-server==1.0
 xvfbwrapper==0.2.9
